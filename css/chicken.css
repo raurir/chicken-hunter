@@ -1,0 +1,14 @@
+#chicken {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+}
+.cell {
+  height: 100px;
+  width: 100px;
+  display: block;
+  background: #eee;
+}
+
+.active {
+  background: #4ee;
+}
