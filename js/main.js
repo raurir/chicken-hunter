@@ -1,38 +1,46 @@
+import Monster from "./monster";
+import controls from "./controls";
+
 const cols = 10;
 const rows = 5;
 
 const slots = Array(rows)
   .fill([])
-  .map((_, c) => Array(cols).fill(""));
+  .map((_, c) => Array(cols).fill([]));
 
 const chicken = document.getElementById("chicken");
 
-// console.log(slots);
+const rnd = (min, max) => Math.floor(Math.random() * (max - min) + min);
+const limit = (input, min, max) => Math.min(Math.max(input, min), max - 1);
 
-const pos = [0, 0];
-const move = ([x, y]) => {
-  pos[0] += x;
-  pos[1] += y;
-  console.log(x, y, pos);
+const pos = { x: rnd(0, cols), y: rnd(0, rows) };
+const move = ({ x = 0, y = 0 }) => {
+  pos.x = limit(pos.x + x, 0, cols);
+  pos.y = limit(pos.y + y, 0, rows);
 };
 
-global.dispatch = (keyName) => {
+const dispatch = (keyName) => {
   console.log(keyName);
   switch (keyName) {
     case "ArrowLeft":
-      move([-1, 0]);
+      move({ x: -1 });
       break;
     case "ArrowRight":
-      move([1, 0]);
+      move({ x: 1 });
       break;
     case "ArrowUp":
-      move([0, -1]);
+      move({ y: -1 });
       break;
     case "ArrowDown":
-      move([0, 1]);
+      move({ y: 1 });
       break;
   }
+  step();
 };
+
+const c2 = controls(dispatch);
+
+const m = new Monster();
 
 let start;
 function step(timestamp) {
@@ -41,13 +49,27 @@ function step(timestamp) {
 
   // element.style.transform = 'translateX(' + Math.min(0.1 * elapsed, 200) + 'px)';
 
-  let html = slots
+  m.update();
+
+  const html = slots
     .map((r, y) => {
       return r.map((c, x) => {
-        if (pos[0] === x && pos[1] === y) {
+        if (m.x === pos.x && m.y === pos.y) {
+          alert("you d@e@a@d!");
+        }
+
+        if (pos.x === x && pos.y === y) {
           return "<div class='cell active'></div>";
         }
-        if (c === "") {
+
+        if (m.x === x && m.y === y) {
+          return "<div class='cell monster'></div>";
+        }
+
+        if (pos.x === x && pos.y === y) {
+          return "<div class='cell active'></div>";
+        }
+        if (c.length === 0) {
           return "<div class='cell empty'></div>";
         }
         return "<div class='cell something'></div>";
