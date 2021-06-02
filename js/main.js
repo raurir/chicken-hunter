@@ -1,17 +1,9 @@
 import Monster from "./monster";
 import controls from "./controls";
-
-const cols = 10;
-const rows = 5;
-
-const slots = Array(rows)
-  .fill([])
-  .map((_, c) => Array(cols).fill([]));
+import { rnd, limit } from "./util";
+import { cols, rows } from "./const";
 
 const chicken = document.getElementById("chicken");
-
-const rnd = (min, max) => Math.floor(Math.random() * (max - min) + min);
-const limit = (input, min, max) => Math.min(Math.max(input, min), max - 1);
 
 const pos = { x: rnd(0, cols), y: rnd(0, rows) };
 const move = ({ x = 0, y = 0 }) => {
@@ -40,7 +32,9 @@ const dispatch = (keyName) => {
 
 const c2 = controls(dispatch);
 
-const m = new Monster();
+const monsters = Array(6)
+  .fill("scary")
+  .map(() => new Monster());
 
 let start;
 function step(timestamp) {
@@ -49,30 +43,33 @@ function step(timestamp) {
 
   // element.style.transform = 'translateX(' + Math.min(0.1 * elapsed, 200) + 'px)';
 
-  m.update();
+  const slots = Array(rows)
+    .fill([])
+    .map(() => Array(cols).fill([]));
+
+  monsters.forEach((m) => {
+    m.update();
+    slots[m.y][m.x] = "monster AARGH!";
+  });
+
+  console.log(slots);
 
   const html = slots
     .map((r, y) => {
       return r.map((c, x) => {
-        if (m.x === pos.x && m.y === pos.y) {
-          alert("you d@e@a@d!");
+        let cell = "<div class='cell";
+        if (pos.x === x && pos.y === y) {
+          cell += " active";
+        }
+
+        if (c.length > 0) {
+          cell += " monster";
         }
 
         if (pos.x === x && pos.y === y) {
-          return "<div class='cell active'></div>";
+          cell += " active";
         }
-
-        if (m.x === x && m.y === y) {
-          return "<div class='cell monster'></div>";
-        }
-
-        if (pos.x === x && pos.y === y) {
-          return "<div class='cell active'></div>";
-        }
-        if (c.length === 0) {
-          return "<div class='cell empty'></div>";
-        }
-        return "<div class='cell something'></div>";
+        return cell + "'>0</div>";
       });
     })
     .flat()
