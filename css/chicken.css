@@ -2,11 +2,11 @@ body {
   background: black;
 }
 #chicken {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  position: relative;
 }
 .cell {
-  border: 2px solid transparent;
+  position: absolute;
+  box-shadow: inset 0px 0px 2px 2px #222;
   height: 100px;
   width: 100px;
   display: block;
@@ -14,7 +14,7 @@ body {
 }
 
 .active {
-  border: 2px solid #4ee;
+  box-shadow: inset 0px 0px 2px 2px #4ee;
 }
 
 .monster {

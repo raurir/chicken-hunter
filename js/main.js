@@ -12,7 +12,7 @@ const move = ({ x = 0, y = 0 }) => {
 };
 
 const dispatch = (keyName) => {
-  console.log(keyName);
+  // console.log(keyName);
   switch (keyName) {
     case "ArrowLeft":
       move({ x: -1 });
@@ -30,55 +30,67 @@ const dispatch = (keyName) => {
   step();
 };
 
-const c2 = controls(dispatch);
+controls(dispatch);
 
 const monsters = Array(6)
   .fill("scary")
   .map(() => new Monster());
 
 let start;
+let lastFrame;
 function step(timestamp) {
-  if (start === undefined) start = timestamp;
+  if (start === undefined) {
+    start = timestamp;
+    lastFrame = timestamp;
+  }
   const elapsed = timestamp - start;
+  const elapsedSinceLastFrame = timestamp - lastFrame;
 
-  // element.style.transform = 'translateX(' + Math.min(0.1 * elapsed, 200) + 'px)';
+  const action = elapsedSinceLastFrame > 400;
+
+  if (action) {
+    lastFrame = timestamp;
+  }
 
   const slots = Array(rows)
     .fill([])
     .map(() => Array(cols).fill([]));
 
   monsters.forEach((m) => {
-    m.update();
-    slots[m.y][m.x] = "monster AARGH!";
+    if (action) {
+      m.update();
+    }
+    if (m.alive) {
+      slots[m.y][m.x] = m.colour;
+    }
   });
 
-  console.log(slots);
-
   const html = slots
-    .map((r, y) => {
-      return r.map((c, x) => {
-        let cell = "<div class='cell";
+    .map((r, y) =>
+      r.map((c, x) => {
+        const style = [`left:${(x + 1) * 100}px;`, `top:${y * 100}px;`];
+        const classes = ["cell"];
         if (pos.x === x && pos.y === y) {
-          cell += " active";
+          classes.push("active");
         }
 
         if (c.length > 0) {
-          cell += " monster";
+          style.push(`background:${c}`);
         }
 
-        if (pos.x === x && pos.y === y) {
-          cell += " active";
-        }
-        return cell + "'>0</div>";
-      });
-    })
+        return `<div class='${classes.join(" ")}' style='${style.join(
+          ""
+        )}'></div>`;
+      })
+    )
     .flat()
     .join("");
 
-  chicken.innerHTML = html + JSON.stringify(pos);
+  chicken.innerHTML = html; // + JSON.stringify(pos);
 
-  // if (elapsed < 2000) { // Stop the animation after 2 seconds
-  // window.requestAnimationFrame(step);
+  // if (elapsed > 1000) {
+  // Stop the animation after 2 seconds
+  window.requestAnimationFrame(step);
   // }
 }
 
